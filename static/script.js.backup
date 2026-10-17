@@ -1,0 +1,151 @@
+
+const fileInput = document.getElementById("fileInput");
+const selectedFile = document.getElementById("selectedFile");
+const fileList = document.getElementById("fileList");
+const fileCount = document.getElementById("fileCount");
+
+let currentFile = null;
+let currentURL = null;
+
+fileInput.addEventListener("change", function () {
+
+    if (!this.files || this.files.length === 0) {
+        return;
+    }
+
+    currentFile = this.files[0];
+
+    if (currentURL) {
+        URL.revokeObjectURL(currentURL);
+    }
+
+    currentURL = URL.createObjectURL(currentFile);
+
+    selectedFile.textContent =
+        "Selected: " + currentFile.name;
+
+    fileCount.textContent = "1";
+
+    fileList.innerHTML = `
+        <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:20px;
+            background:#172238;
+            border-radius:12px;
+            margin:5px;
+        ">
+
+            <div>
+                <div style="font-size:17px;">
+                    📄 <strong>${currentFile.name}</strong>
+                </div>
+
+                <div style="
+                    color:#94a3b8;
+                    margin-top:6px;
+                ">
+                    🔒 Ready for secure storage
+                </div>
+            </div>
+
+            <div>
+                <button onclick="openCurrentFile()" style="
+                    padding:10px 18px;
+                    margin-right:8px;
+                    border:0;
+                    border-radius:8px;
+                    cursor:pointer;
+                    background:#2563eb;
+                    color:white;
+                    font-weight:bold;
+                ">
+                    👁 Open
+                </button>
+
+                <button onclick="deleteCurrentFile()" style="
+                    padding:10px 18px;
+                    border:0;
+                    border-radius:8px;
+                    cursor:pointer;
+                    background:#7f1d1d;
+                    color:white;
+                    font-weight:bold;
+                ">
+                    🗑 Delete
+                </button>
+            </div>
+
+        </div>
+    `;
+
+    this.value = "";
+});
+
+
+function openCurrentFile() {
+
+    if (currentURL) {
+        window.open(currentURL, "_blank");
+    }
+}
+
+
+function deleteCurrentFile() {
+
+    if (currentURL) {
+        URL.revokeObjectURL(currentURL);
+    }
+
+    currentURL = null;
+    currentFile = null;
+
+    fileCount.textContent = "0";
+
+    selectedFile.textContent = "No file selected";
+
+    fileList.innerHTML = `
+        <div class="empty">
+            📂
+            <p>No files uploaded yet</p>
+        </div>
+    `;
+}
+
+
+function refreshFiles() {
+
+    if (currentFile && currentURL) {
+        fileCount.textContent = "1";
+
+        fileList.innerHTML = `
+            <div style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                padding:20px;
+                background:#172238;
+                border-radius:12px;
+            ">
+                <div>
+                    📄 <strong>${currentFile.name}</strong>
+                    <div style="color:#94a3b8;margin-top:6px;">
+                        🔒 Ready for secure storage
+                    </div>
+                </div>
+
+                <button onclick="openCurrentFile()" style="
+                    padding:10px 18px;
+                    border:0;
+                    border-radius:8px;
+                    background:#2563eb;
+                    color:white;
+                    cursor:pointer;
+                ">
+                    👁 Open
+                </button>
+            </div>
+        `;
+    }
+}

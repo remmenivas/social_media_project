@@ -1,0 +1,404 @@
+SocialConnect — Social Media Database Management System
+Complete Narration Script for Project Explanation Video
+=========================================================
+Total Target Duration: ~7 minutes
+Language: English (natural, technical, moderately paced)
+
+=========================================================
+SCENE 1 — OPENING (0:00 – 0:18)
+=========================================================
+
+Welcome to SocialConnect — a Social Media Database Management System.
+
+This project is a fully functional web application that demonstrates how a 
+modern database-driven system works — from a user interface in the browser, 
+through a Python backend, all the way to a PostgreSQL relational database.
+
+In the next seven minutes, we will walk through every layer of this system — 
+what it does, how it is built, and which database concepts it demonstrates in practice.
+
+=========================================================
+SCENE 2 — PROBLEM STATEMENT (0:18 – 0:50)
+=========================================================
+
+Every social media application you use today — whether it's Twitter, Instagram, 
+or LinkedIn — depends on a database at its core.
+
+When you write a post, that text must be saved somewhere. When someone likes 
+your post, that action must be recorded. When you send a private message, 
+it must be stored and delivered accurately.
+
+A database management system, or DBMS, is the engine that makes all of this 
+possible. It stores data in organized tables, enforces relationships between 
+records, and answers questions instantly using a language called SQL.
+
+SocialConnect was built to demonstrate exactly these principles — not as a 
+commercial product, but as a complete, working example of how frontend 
+interfaces, backend logic, and relational database operations work together.
+
+=========================================================
+SCENE 3 — OBJECTIVES AND FEATURES (0:50 – 1:30)
+=========================================================
+
+Let's look at what SocialConnect actually does.
+
+The application allows users to create posts with text and optional images. 
+Every post is associated with a registered user stored in the database.
+
+Users can browse a live feed of all posts, sorted by creation time. They can 
+search posts by keyword using the built-in search feature.
+
+Each post supports likes and unlikes. The system prevents the same user from 
+liking the same post twice — this is enforced at the database level.
+
+Users can read and add comments to any post. They can view user profiles 
+showing biographical information and post counts.
+
+And SocialConnect includes a full direct messaging system — users can send 
+private messages to one another, and the conversation auto-refreshes every 
+five seconds to show new messages.
+
+Finally, the interface supports a dark and a light theme, with the preference 
+saved in the browser.
+
+All of these features are backed by real database operations happening in 
+real time on a PostgreSQL database.
+
+=========================================================
+SCENE 4 — TECHNOLOGY STACK (1:30 – 2:05)
+=========================================================
+
+SocialConnect uses a clearly separated three-tier architecture.
+
+At the top is the frontend — built with HTML, which defines the structure of 
+the page; CSS, which controls the layout, colors, and typography; and 
+JavaScript, which handles all user interactions without refreshing the page.
+
+In the middle is the backend — a Python application using the Flask framework. 
+Flask provides routes, or URL endpoints, that receive requests from the 
+browser, execute business logic, and return structured responses.
+
+At the bottom is the database — PostgreSQL, a powerful open-source relational 
+database management system. PostgreSQL stores all persistent data: users, 
+posts, likes, comments, and messages.
+
+Connecting the backend to the database is psycopg2 — a Python library that 
+lets Flask send SQL queries to PostgreSQL and receive results.
+
+The frontend and backend communicate using HTTP — the same protocol used by 
+the internet — and exchange data in JSON format, which is a lightweight 
+text-based structure that both sides can read and write easily.
+
+=========================================================
+SCENE 5 — FRONTEND DEMONSTRATION (2:05 – 2:55)
+=========================================================
+
+Here is SocialConnect running in a browser.
+
+The layout has three main sections: a left sidebar for navigation, a central 
+main area with the content feed, and a right panel with a welcome card.
+
+At the top of the main area is the post creation form. A user selects their 
+identity from a dropdown, types their message, optionally adds an image URL, 
+and clicks Publish. This sends a request to the Flask backend, which inserts 
+the post into PostgreSQL.
+
+Below that is the community feed — a list of post cards, each showing the 
+author's name, their username handle, when the post was written, the post 
+content, and how many likes it has received.
+
+Each post card has action buttons: Like, Unlike, and Comments. If you are 
+viewing a post that belongs to the currently selected user, a Delete button 
+also appears.
+
+The search bar at the top of the feed lets you filter posts in real time. 
+As you type a keyword and press Search, JavaScript sends a request to the 
+backend with the search term, and the backend queries PostgreSQL using an 
+ILIKE filter, which performs a case-insensitive text search.
+
+The Profiles section lets you select any user and view their full profile — 
+name, username, bio, email, and total number of posts — all retrieved live 
+from the database.
+
+Finally, clicking Messages in the sidebar opens the private chat interface, 
+where you can select any user and exchange messages in a clean conversation view.
+
+=========================================================
+SCENE 6 — SYSTEM ARCHITECTURE (2:55 – 3:32)
+=========================================================
+
+Let's visualize how these layers work together.
+
+A user interacts with the browser — clicking a button, filling a form, or 
+pressing Enter on the search bar.
+
+JavaScript in the browser captures that event and uses the Fetch API to send 
+an HTTP request to Flask. The request may be a GET — to retrieve data — or a 
+POST or DELETE — to modify data. The request body, when present, is formatted 
+as JSON.
+
+Flask receives the request on the corresponding route. It extracts parameters 
+from the URL or the JSON body, validates them, and constructs a SQL query.
+
+psycopg2 executes that query against the PostgreSQL database called 
+social_media_db. PostgreSQL processes the query, applies its rules and 
+constraints, and returns the results.
+
+Flask converts those results into a JSON response and sends it back to the 
+browser.
+
+JavaScript receives the response, parses the JSON, and dynamically updates 
+the page — adding new post cards, updating like counts, or displaying messages.
+
+The frontend never touches the database directly. All database communication 
+passes through the Flask backend, which provides a clean separation of concerns.
+
+=========================================================
+SCENE 7 — BACKEND AND FLASK API (3:32 – 4:25)
+=========================================================
+
+Let's look at the Flask backend in detail.
+
+Flask is a Python web framework. You define a route using the app.route 
+decorator, which maps a URL path to a Python function. When a request arrives 
+at that URL, Flask calls the function and returns whatever the function sends back.
+
+The backend has eleven endpoints in total.
+
+GET /api/posts returns a JSON array of all posts. It accepts an optional 
+search query parameter and filters posts using a SQL ILIKE clause. 
+Critically, it uses a three-table JOIN — joining posts with users to get the 
+author's name, and with likes to count how many likes each post has received.
+
+POST /api/posts creates a new post. Flask reads the user ID, content, and 
+optional image URL from the JSON body, validates that neither the user nor 
+the content is missing, and then runs a parameterized SQL INSERT.
+
+POST /api/posts/like handles the Like action. It uses PostgreSQL's ON CONFLICT 
+DO NOTHING clause — meaning if the same user tries to like the same post twice, 
+the database simply ignores the second request instead of returning an error.
+
+POST /api/posts/unlike deletes a specific like record from the likes table.
+
+DELETE /api/posts removes a post entirely. It checks the number of deleted 
+rows and returns a 404 error if the post did not exist.
+
+Every database operation uses parameterized queries — the values are passed 
+separately from the SQL text — which completely prevents SQL injection attacks.
+
+Every write operation is wrapped in a try/except block with conn.commit() on 
+success and conn.rollback() on failure, ensuring the database remains consistent.
+
+=========================================================
+SCENE 8 — POSTGRESQL DATABASE AND SCHEMA (4:25 – 5:15)
+=========================================================
+
+Now let's look at the PostgreSQL database.
+
+The database is named social_media_db and contains five tables.
+
+The users table holds user accounts. Each row has a user_id as the primary key, 
+plus a username, email address, full name, and bio.
+
+The posts table stores every post. The post_id is the primary key. The user_id 
+column is a foreign key that references the users table — this is how the 
+database knows which user wrote each post. Each post also has text content, 
+an optional image URL, and a timestamp that is set automatically when the post 
+is created.
+
+The likes table records which user liked which post. Both post_id and user_id 
+are foreign keys. Together, they form a unique constraint — the database itself 
+prevents the same user from liking the same post twice.
+
+The comments table stores comments linked to both a post and a user, with a 
+text body and a creation timestamp.
+
+The messages table stores direct messages. It has both a sender_id and a 
+recipient_id — both foreign keys referencing users — plus the message text 
+and a creation timestamp.
+
+Here is the entity-relationship diagram. The users entity is at the center, 
+related to posts, likes, comments, and messages. Each user can write many 
+posts — a one-to-many relationship. Each post can have many likes and many 
+comments. Messages connect two users, with one as sender and one as recipient.
+
+=========================================================
+SCENE 9 — DBMS CONCEPTS (5:15 – 6:00)
+=========================================================
+
+SocialConnect demonstrates a wide range of core database concepts.
+
+A primary key is a column that uniquely identifies each row. Every table has 
+one — user_id, post_id, like_id, comment_id, and message_id. PostgreSQL 
+guarantees that no two rows in the same table share the same primary key value.
+
+A foreign key links a row in one table to a row in another. For example, the 
+user_id in the posts table references user_id in the users table. This enforces 
+referential integrity — you cannot create a post for a user that does not exist.
+
+A JOIN is a SQL operation that combines rows from multiple tables. The post feed 
+query joins three tables — posts, users, and likes — in a single SQL statement.
+
+An aggregate function performs a calculation on a group of rows. The COUNT 
+function counts how many likes each post has, and the results are grouped by 
+post using GROUP BY.
+
+INSERT with RETURNING is used after creating a post, comment, or message. 
+PostgreSQL executes the insertion and immediately returns the newly assigned ID.
+
+ON CONFLICT DO NOTHING demonstrates the concept of upsert logic — where an 
+INSERT either succeeds or is gracefully ignored based on a constraint violation.
+
+Transaction management ensures that a sequence of database operations either 
+all succeed together or are all rolled back if something goes wrong. Flask 
+explicitly calls commit after success and rollback after failure.
+
+Together, these concepts demonstrate the full practical scope of a relational 
+database in a real application.
+
+=========================================================
+SCENE 10 — SQL DEMONSTRATION (6:00 – 6:38)
+=========================================================
+
+Let's look at a few key SQL queries in action.
+
+First, a simple SELECT to retrieve all posts, showing the raw table contents:
+
+SELECT * FROM posts;
+
+This returns every row with post_id, user_id, content, image_url, and created_at.
+
+Next, the full query used by the API — joining three tables to build the 
+complete post feed:
+
+SELECT p.post_id, u.username, u.full_name, p.content, p.image_url,
+       p.created_at, COUNT(DISTINCT l.like_id) AS likes
+FROM posts p
+JOIN users u ON p.user_id = u.user_id
+LEFT JOIN likes l ON p.post_id = l.post_id
+GROUP BY p.post_id, u.username, u.full_name, p.content, p.image_url, p.created_at
+ORDER BY p.created_at DESC;
+
+This query retrieves every post alongside the author's name and how many 
+unique likes it has received, ordered newest first.
+
+The LEFT JOIN on likes is important — it means posts with zero likes are still 
+included in the results. If we used an INNER JOIN, posts with no likes would 
+disappear from the feed entirely.
+
+COUNT DISTINCT ensures that even if a duplicate like record somehow existed, 
+it would only be counted once.
+
+=========================================================
+SCENE 11 — END-TO-END WORKFLOW (6:38 – 7:15)
+=========================================================
+
+Let's trace a complete user action from browser to database and back.
+
+A user opens SocialConnect. The browser automatically calls GET /api/users 
+to populate the user dropdown, and GET /api/posts to load the feed.
+
+The user selects their identity, types a message — let's say "Hello from 
+SocialConnect!" — and clicks Publish.
+
+JavaScript reads the user ID and content, packages them as a JSON object, 
+and sends a POST request to /api/posts.
+
+Flask receives the request. It extracts user_id and content from the JSON body. 
+It validates that both fields are present. Then it calls get_db_connection() 
+to open a psycopg2 connection to PostgreSQL.
+
+Flask executes the INSERT statement with parameterized values. PostgreSQL stores 
+the new row in the posts table, assigns it a post_id, and returns that ID 
+to Flask.
+
+Flask commits the transaction, wraps the post_id in a JSON response, and sends 
+a 201 Created status back to the browser.
+
+JavaScript receives the success response, clears the form, shows a toast 
+notification saying "Your post has been published!", and automatically calls 
+GET /api/posts again to reload the feed.
+
+The new post now appears at the top of the feed — with the correct author name, 
+the message text, zero likes, and the correct timestamp — all retrieved live 
+from the database.
+
+The user then clicks Like. JavaScript sends POST /api/posts/<post_id>/like 
+with the user ID. Flask inserts a row into the likes table with ON CONFLICT 
+DO NOTHING. The feed reloads, and the like count increments by one.
+
+=========================================================
+SCENE 12 — API RESPONSE FORMAT (7:15 – 7:45)
+=========================================================
+
+Let's look at what the API actually returns.
+
+When the browser calls GET /api/posts, Flask responds with a JSON array. 
+Each element in the array represents one post and contains these fields:
+
+post_id — the unique numeric identifier of the post.
+username — the author's handle, such as at-alex or at-priya.
+full_name — the author's display name.
+content — the text body of the post.
+image_url — either a URL string or null if no image was provided.
+created_at — the timestamp from PostgreSQL.
+likes — an integer count of how many users have liked this post.
+
+This JSON structure is what JavaScript receives, parses, and uses to build 
+each post card in the browser.
+
+JSON is important because it is a universal format. Flask can generate it in 
+Python using jsonify, and JavaScript can parse it natively using JSON.parse. 
+No special conversion is required on either side.
+
+=========================================================
+SCENE 13 — RESULTS SUMMARY (7:45 – 8:10)
+=========================================================
+
+Let's summarize what has been demonstrated.
+
+SocialConnect successfully runs as a Python Flask application connected to 
+a PostgreSQL database. The application starts cleanly, connects to the database 
+using psycopg2, and all eleven API endpoints respond as expected.
+
+The post feed retrieves data using a complex three-table JOIN with aggregation. 
+Post creation, liking, unliking, deleting, commenting, and messaging all 
+work correctly through their respective endpoints.
+
+The duplicate-like prevention works at the database level through a unique 
+constraint and ON CONFLICT clause — even if the same request is sent multiple 
+times, only one like is recorded.
+
+The frontend dynamically updates after every action without requiring a page 
+reload, demonstrating real-world integration between JavaScript, Flask, and PostgreSQL.
+
+=========================================================
+SCENE 14 — CONCLUSION AND FUTURE SCOPE (8:10 – 8:45)
+=========================================================
+
+SocialConnect demonstrates that a complete, database-driven web application 
+can be built using open-source tools — HTML, CSS, JavaScript, Python Flask, 
+psycopg2, and PostgreSQL.
+
+The project covers the full stack from the browser to the database. It uses 
+a five-table relational schema with primary keys, foreign keys, and unique 
+constraints. It performs complex SQL operations including joins, aggregations, 
+filtering, and sorting. It implements all four CRUD operations — Create, Read, 
+Update, and Delete — across multiple tables.
+
+Looking forward, the project could be extended with user authentication and 
+session management for secure login. Other possibilities include image upload 
+to a file server, a following and followers system, push notifications, 
+pagination for large datasets, and a full-text search index in PostgreSQL.
+
+These are possibilities for future development — not features that are 
+currently implemented. The current version is a clean, functional demonstration 
+of relational database principles applied in a real web application.
+
+Thank you for watching this explanation of SocialConnect — a Social Media 
+Database Management System built with Flask and PostgreSQL.
+
+=========================================================
+END OF SCRIPT
+Total estimated speech duration: ~7 minutes 30 seconds
+=========================================================

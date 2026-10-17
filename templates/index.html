@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialConnect | Connect Your World</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <a class="brand" href="#" onclick="showHome(); return false;">
+            <span class="brand-icon">S</span>
+            <span>Social<span class="brand-highlight">Connect</span></span>
+        </a>
+
+        <div class="sidebar-label">MENU</div>
+        <nav class="navigation">
+            <a class="nav-link active" id="homeNav" href="#home"
+               onclick="showHome(); return false;">
+                <span>⌂</span> Home
+            </a>
+            <a class="nav-link" href="#explore"
+               onclick="showHome(); document.getElementById('explore').scrollIntoView({behavior:'smooth'}); return false;">
+                <span>⌕</span> Explore
+            </a>
+            <a class="nav-link" href="#create"
+               onclick="showHome(); document.getElementById('create').scrollIntoView({behavior:'smooth'}); return false;">
+                <span>＋</span> Create Post
+            </a>
+            <a class="nav-link" href="#profiles"
+               onclick="showHome(); document.getElementById('profiles').scrollIntoView({behavior:'smooth'}); return false;">
+                <span>♙</span> Profiles
+            </a>
+            <a class="nav-link" id="messagesNav" href="#messages"
+               onclick="openMessagesPage(); return false;">
+                <span>▤</span> Messages
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button class="theme-button" id="themeToggle" onclick="toggleTheme()">
+                <span id="themeIcon">☀</span>
+                <span id="themeLabel">Light mode</span>
+            </button>
+            <div class="sidebar-note">
+                <span class="status-dot"></span>
+                Your community, your space.
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- HOME / FEED SCREEN -->
+        <div id="feedPage">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">YOUR COMMUNITY</p>
+                    <h1>Discover your world<span class="accent-dot">.</span></h1>
+                    <p class="muted">Share ideas, moments, and conversations.</p>
+                </div>
+                <button class="theme-button mobile-theme" onclick="toggleTheme()">
+                    <span>◐</span> Theme
+                </button>
+            </header>
+
+            <section class="panel create-panel" id="create">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">CREATE SOMETHING</p>
+                        <h2>What's on your mind?</h2>
+                    </div>
+                    <span class="heading-icon">✦</span>
+                </div>
+
+                <label for="user">Post as</label>
+                <select id="user" class="field">
+                    <option value="">Loading users...</option>
+                </select>
+
+                <label for="content">Your message</label>
+                <textarea id="content" class="field" rows="3"
+                          placeholder="Share something with your community..."></textarea>
+
+                <label for="image_url">Image URL <span class="muted">(optional)</span></label>
+                <input id="image_url" class="field" type="url"
+                       placeholder="https://example.com/image.jpg">
+
+                <div class="form-footer">
+                    <span class="muted small-text">Be kind. Be creative. Be you.</span>
+                    <button class="primary-button" onclick="createPost()">＋ Publish post</button>
+                </div>
+            </section>
+
+            <section class="search-section" id="explore">
+                <div>
+                    <p class="eyebrow">EXPLORE</p>
+                    <h2>Community feed</h2>
+                </div>
+                <div class="search-box">
+                    <span>⌕</span>
+                    <input id="searchInput" type="search"
+                           placeholder="Search posts..."
+                           onkeydown="if(event.key==='Enter') searchPosts()">
+                    <button onclick="searchPosts()">Search</button>
+                </div>
+            </section>
+
+            <div id="feedStatus" class="status-message" aria-live="polite"></div>
+            <div id="posts" class="posts-list">
+                <div class="empty-state">Loading your community...</div>
+            </div>
+
+            <section class="panel profile-panel" id="profiles">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">GET TO KNOW YOUR COMMUNITY</p>
+                        <h2>Explore a profile</h2>
+                    </div>
+                    <span class="heading-icon">♙</span>
+                </div>
+                <label for="profileUser">Choose a user</label>
+                <select id="profileUser" class="field">
+                    <option value="">Select a user</option>
+                </select>
+                <button class="secondary-button" onclick="viewProfile()">View profile →</button>
+                <div id="profileDetails"></div>
+            </section>
+
+            <footer class="page-footer">
+                <span class="brand-mini">S</span>
+                <span>SocialConnect</span>
+                <span class="footer-separator">•</span>
+                <span>Connect your world.</span>
+            </footer>
+        </div>
+
+        <!-- DEDICATED MESSAGES SCREEN -->
+        <section id="messagesPage" class="messages-page" hidden>
+            <header class="messages-header">
+                <div>
+                    <p class="eyebrow">YOUR PRIVATE SPACE</p>
+                    <h1>Messages<span class="accent-dot">.</span></h1>
+                    <p class="muted">Conversations start with a hello.</p>
+                </div>
+                <button class="secondary-button back-button"
+                        onclick="showHome()">← Back to feed</button>
+            </header>
+
+            <div class="messenger-layout">
+                <aside class="conversation-panel">
+                    <div class="conversation-title">
+                        <h2>Conversations</h2>
+                        <span class="conversation-count" id="conversationCount">0</span>
+                    </div>
+                    <p class="muted small-text">Choose a community member to chat with.</p>
+
+                    <input id="conversationSearch" class="field conversation-search"
+                           type="search" placeholder="Find a person..."
+                           oninput="filterConversations()">
+
+                    <div id="conversationList" class="conversation-list">
+                        <div class="empty-state">Loading people...</div>
+                    </div>
+
+                    <!-- Populated by the existing users API; used by the chat JavaScript. -->
+                    <select id="chatUser" class="field visually-hidden"
+                            aria-label="Selected chat user">
+                        <option value="">Select a person</option>
+                    </select>
+                </aside>
+
+                <section class="chat-panel">
+                    <div id="chatWelcome" class="chat-welcome">
+                        <div class="welcome-chat-icon">✉</div>
+                        <h2>Your conversations, all in one place.</h2>
+                        <p class="muted">Select a person from the left to start chatting.</p>
+                    </div>
+
+                    <div id="activeChat" class="active-chat" hidden>
+                        <header class="chat-header">
+                            <div class="avatar chat-avatar" id="chatAvatar">U</div>
+                            <div class="chat-person">
+                                <h3 id="chatPersonName">Conversation</h3>
+                                <p class="muted small-text">SocialConnect member</p>
+                            </div>
+                            <span class="chat-status"><span class="status-dot"></span> Chat</span>
+                        </header>
+
+                        <div id="chatMessages" class="chat-messages"
+                             aria-live="polite">
+                            <div class="empty-state">Select a conversation to load messages.</div>
+                        </div>
+
+                        <form class="chat-composer" onsubmit="sendMessage(); return false;">
+                            <textarea id="chatInput" class="field"
+                                      rows="1" maxlength="2000"
+                                      placeholder="Write a message..."
+                                      aria-label="Write a message"></textarea>
+                            <button class="send-button" type="submit" title="Send message">
+                                <span>➤</span> Send
+                            </button>
+                        </form>
+                        <p class="composer-note">Keep conversations respectful.</p>
+                    </div>
+                </section>
+            </div>
+            <footer class="page-footer">
+                <span class="brand-mini">S</span>
+                <span>SocialConnect Messages</span>
+            </footer>
+        </section>
+    </main>
+
+    <aside class="right-sidebar">
+        <div class="welcome-card">
+            <div class="welcome-art">
+                <div class="art-orbit orbit-one"></div>
+                <div class="art-orbit orbit-two"></div>
+                <div class="art-center">S</div>
+                <span class="art-star star-one">✦</span>
+                <span class="art-star star-two">✧</span>
+            </div>
+            <p class="eyebrow">WELCOME ABOARD</p>
+            <h2>Your people.<br>Your conversations.</h2>
+            <p class="muted">A space to share moments and stay connected.</p>
+            <button class="primary-button full-button"
+                    onclick="openMessagesPage()">Open messages →</button>
+        </div>
+
+        <div class="right-info panel">
+            <h3>Make it meaningful</h3>
+            <p class="muted">Share your ideas, support others, and build your community one post at a time.</p>
+        </div>
+
+        <div class="right-footer">SOCIALCONNECT · COMMUNITY</div>
+    </aside>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+    function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        try { localStorage.setItem("socialconnect-theme", theme); } catch (e) {}
+        const isDark = theme === "dark";
+        const icon = document.getElementById("themeIcon");
+        const label = document.getElementById("themeLabel");
+        if (icon) icon.textContent = isDark ? "☀" : "☾";
+        if (label) label.textContent = isDark ? "Light mode" : "Dark mode";
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme") || "dark";
+        applyTheme(current === "dark" ? "light" : "dark");
+    }
+
+    try {
+        applyTheme(localStorage.getItem("socialconnect-theme") || "dark");
+    } catch (e) {
+        applyTheme("dark");
+    }
+</script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

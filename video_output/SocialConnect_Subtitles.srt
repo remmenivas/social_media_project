@@ -1,0 +1,235 @@
+1
+00:00:00,000 --> 00:00:05,777
+Welcome to SocialConnect, a complete Social Media Database Management System.
+
+2
+00:00:05,777 --> 00:00:11,554
+Built with Python Flask, PostgreSQL, and modern JavaScript, this project
+
+3
+00:00:11,554 --> 00:00:17,332
+demonstrates how a real-world web interface interacts with a relational
+
+4
+00:00:17,332 --> 00:00:23,109
+database across the entire stack. Let's explore how it works.
+
+5
+00:00:23,109 --> 00:00:28,245
+Modern social platforms require robust databases to store posts, record
+
+6
+00:00:28,245 --> 00:00:33,381
+likes, and deliver private messages safely. SocialConnect addresses this by
+
+7
+00:00:33,381 --> 00:00:38,518
+connecting a responsive web frontend to PostgreSQL, ensuring referential integrity,
+
+8
+00:00:38,518 --> 00:00:43,654
+reliable data persistence, and organized relational storage for all community
+
+9
+00:00:43,654 --> 00:00:48,790
+interactions.
+
+10
+00:00:48,790 --> 00:00:54,592
+SocialConnect provides rich core features: publishing posts with optional images,
+
+11
+00:00:54,592 --> 00:01:00,395
+browsing a live chronological feed, keyword search, like and unlike
+
+12
+00:01:00,395 --> 00:01:06,197
+tracking, threaded comments, user profile inspection, and real-time direct messaging
+
+13
+00:01:06,197 --> 00:01:12,000
+between community members, alongside a dark and light theme toggle.
+
+14
+00:01:12,000 --> 00:01:17,677
+The system follows a three-tier architecture. The frontend uses HTML,
+
+15
+00:01:17,677 --> 00:01:23,355
+CSS, and modern JavaScript. The backend is powered by Python
+
+16
+00:01:23,355 --> 00:01:29,033
+Flask with psycopg2 for database connectivity. At the foundation is
+
+17
+00:01:29,033 --> 00:01:34,711
+PostgreSQL, storing relational data. Communication between tiers uses standard HTTP
+
+18
+00:01:34,711 --> 00:01:40,389
+requests and structured JSON responses.
+
+19
+00:01:40,389 --> 00:01:45,333
+Here is the application running live in the browser. Users
+
+20
+00:01:45,333 --> 00:01:50,276
+can select an author from the dropdown, write their message,
+
+21
+00:01:50,276 --> 00:01:55,219
+and publish it instantly. The feed updates dynamically without a
+
+22
+00:01:55,219 --> 00:02:00,163
+page refresh, displaying author names, timestamps, and like counts. Users
+
+23
+00:02:00,163 --> 00:02:05,106
+can search posts using case-insensitive matching, view complete profiles, or
+
+24
+00:02:05,106 --> 00:02:10,049
+open the messaging page for direct conversations.
+
+25
+00:02:10,049 --> 00:02:15,727
+When a user performs an action, JavaScript captures the event
+
+26
+00:02:15,727 --> 00:02:21,405
+and sends an asynchronous HTTP request with a JSON payload
+
+27
+00:02:21,405 --> 00:02:27,083
+to Flask. Flask validates the request, executes parameterized SQL queries
+
+28
+00:02:27,083 --> 00:02:32,761
+through psycopg2 against the PostgreSQL database, and returns a JSON
+
+29
+00:02:32,761 --> 00:02:38,439
+response. JavaScript then updates the user interface seamlessly.
+
+30
+00:02:38,439 --> 00:02:44,347
+The backend exposes eleven RESTful API endpoints. Key routes include
+
+31
+00:02:44,347 --> 00:02:50,255
+GET /api/posts for retrieving the feed, POST /api/posts for inserting
+
+32
+00:02:50,255 --> 00:02:56,163
+new posts, and /api/posts/like which implements conflict handling. All database
+
+33
+00:02:56,163 --> 00:03:02,071
+queries use parameterization to eliminate SQL injection vulnerabilities, with strict
+
+34
+00:03:02,071 --> 00:03:07,979
+commit and rollback transaction management.
+
+35
+00:03:07,979 --> 00:03:14,319
+The PostgreSQL database, named social_media_db, contains five relational tables: users,
+
+36
+00:03:14,319 --> 00:03:20,659
+posts, likes, comments, and messages. Every table defines a primary
+
+37
+00:03:20,659 --> 00:03:26,999
+key. Foreign keys connect posts, comments, and likes to users,
+
+38
+00:03:26,999 --> 00:03:33,339
+enforcing referential integrity. A composite unique constraint on likes prevents
+
+39
+00:03:33,339 --> 00:03:39,679
+duplicate entries at the database level.
+
+40
+00:03:39,679 --> 00:03:45,607
+SocialConnect highlights fundamental DBMS concepts in practice: primary and foreign
+
+41
+00:03:45,607 --> 00:03:51,534
+key constraints, multi-table joins, aggregate functions like COUNT, insert operations
+
+42
+00:03:51,534 --> 00:03:57,462
+with the RETURNING clause, upsert logic using ON CONFLICT DO
+
+43
+00:03:57,462 --> 00:04:03,389
+NOTHING, and transaction safety using explicit commit and rollback calls.
+
+44
+00:04:03,389 --> 00:04:07,458
+In this query demonstration, we see the real SQL statements
+
+45
+00:04:07,458 --> 00:04:11,526
+executed by the system. The main feed query performs an
+
+46
+00:04:11,526 --> 00:04:15,594
+INNER JOIN between posts and users, combined with a LEFT
+
+47
+00:04:15,594 --> 00:04:19,663
+JOIN on the likes table. It aggregates like counts using
+
+48
+00:04:19,663 --> 00:04:23,731
+COUNT DISTINCT, groups results by post ID, and sorts them
+
+49
+00:04:23,731 --> 00:04:27,799
+newest first.
+
+50
+00:04:27,799 --> 00:04:32,656
+Let's trace a complete end-to-end user action. When a post
+
+51
+00:04:32,656 --> 00:04:37,513
+is published, the browser sends a POST request with JSON
+
+52
+00:04:37,513 --> 00:04:42,369
+data. Flask verifies the fields, opens a database connection, and
+
+53
+00:04:42,369 --> 00:04:47,226
+executes an INSERT with RETURNING. PostgreSQL saves the record, generates
+
+54
+00:04:47,226 --> 00:04:52,083
+the post ID, and returns it. The interface displays the
+
+55
+00:04:52,083 --> 00:04:56,939
+new post instantly with zero likes.
+
+56
+00:04:56,939 --> 00:05:02,370
+In conclusion, SocialConnect demonstrates full-stack integration, robust API design, and
+
+57
+00:05:02,370 --> 00:05:07,800
+practical relational database management. Future enhancements could introduce user authentication,
+
+58
+00:05:07,800 --> 00:05:13,230
+image storage, and pagination. Thank you for watching this presentation
+
+59
+00:05:13,230 --> 00:05:18,660
+of SocialConnect.
